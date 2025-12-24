@@ -1,7 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as Papa from 'papaparse';
+import { CsvDataService } from '../../services/csv-data.service';
+import { Transaction } from '../../services/pdf-parser.service';
 
 interface CsvData {
   headers: string[];
@@ -14,10 +16,35 @@ interface CsvData {
   templateUrl: './csv-view.component.html',
   styleUrl: './csv-view.component.scss',
 })
-export class CsvViewComponent {
+export class CsvViewComponent implements OnInit {
   csvData = signal<CsvData | null>(null);
   filterText = signal<string>('');
   isDragging = signal<boolean>(false);
+
+  constructor(private csvDataService: CsvDataService) {}
+
+  ngOnInit(): void {
+    // Check if there's data from the PDF importer
+    if (this.csvDataService.hasTransactions()) {
+      this.loadTransactionsFromService();
+    }
+  }
+
+  private loadTransactionsFromService(): void {
+    const transactions = this.csvDataService.getTransactions();
+    if (transactions.length === 0) return;
+
+    const headers = ['date', 'description', 'debit', 'credit', 'balance'];
+    const rows = transactions.map((t: Transaction) => [
+      t.date,
+      t.description,
+      t.debit,
+      t.credit,
+      t.balance,
+    ]);
+
+    this.csvData.set({ headers, rows });
+  }
 
   get filteredRows(): string[][] {
     const data = this.csvData();
@@ -92,5 +119,10 @@ export class CsvViewComponent {
   clearData(): void {
     this.csvData.set(null);
     this.filterText.set('');
+    this.csvDataService.clearTransactions();
+  }
+
+  downloadCsv(): void {
+    this.csvDataService.downloadCsv();
   }
 }

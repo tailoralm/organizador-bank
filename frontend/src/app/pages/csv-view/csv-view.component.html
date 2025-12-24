@@ -49,6 +49,9 @@
           [(ngModel)]="filterText"
           (ngModelChange)="filterText.set($event)"
         />
+        <button type="button" class="download-button" (click)="downloadCsv()">
+          Download CSV
+        </button>
         <button type="button" class="clear-button" (click)="clearData()">
           Clear Data
         </button>

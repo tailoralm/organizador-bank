@@ -1,0 +1,69 @@
+<div class="pdf-importer-container">
+  <div class="importer-card">
+    <h1>PDF Bank Statement Importer</h1>
+    <p class="subtitle">Import and convert your bank statement PDF to CSV format</p>
+
+    <div class="form-section">
+      <div class="form-group">
+        <label for="pattern-select">Select Bank Pattern:</label>
+        <select
+          id="pattern-select"
+          [value]="selectedPattern()"
+          (change)="onPatternChange($event)"
+          [disabled]="isProcessing()"
+          class="pattern-select">
+          @for (pattern of bankPatterns; track pattern.id) {
+            <option [value]="pattern.id">{{ pattern.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="file-input" class="file-label">
+          <span class="file-button">
+            @if (isProcessing()) {
+              <span>Processing...</span>
+            } @else {
+              <span>{{ fileName() || 'Choose PDF File' }}</span>
+            }
+          </span>
+        </label>
+        <input
+          type="file"
+          id="file-input"
+          accept="application/pdf"
+          (change)="onFileSelected($event)"
+          [disabled]="isProcessing()"
+          class="file-input">
+      </div>
+
+      @if (isProcessing()) {
+        <div class="status-message processing">
+          <div class="spinner"></div>
+          <span>Processing PDF... This may take a moment.</span>
+        </div>
+      }
+
+      @if (errorMessage()) {
+        <div class="status-message error">
+          <span>❌ {{ errorMessage() }}</span>
+        </div>
+      }
+
+      @if (isProcessed()) {
+        <div class="status-message success">
+          <span>✅ PDF processed successfully!</span>
+        </div>
+      }
+
+      <div class="action-buttons">
+        <button
+          class="btn-primary"
+          [disabled]="!isProcessed()"
+          (click)="goToCsvView()">
+          Go to CSV View
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
