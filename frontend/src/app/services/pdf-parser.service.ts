@@ -91,7 +91,7 @@ export class PdfParserService {
             collectedWords.push(word);
 
             // Log first 50 words to help debug column positions
-            if (collectedWords.length <= 50) {
+            if (word.text === 'JUROS' || word.text === 'legislação' || word.text === '10.30') {
               console.log(`Word: "${word.text}" at X=${word.x.toFixed(2)}, Y=${word.y.toFixed(2)}`);
             }
           }
@@ -110,7 +110,7 @@ export class PdfParserService {
     return collectedWords;
   }
 
-  private groupRows(words: Word[], tolerance: number = 3): Map<number, Word[]> {
+  private groupRows(words: Word[], tolerance: number = 2): Map<number, Word[]> {
     const rows = new Map<number, Word[]>();
 
     for (const word of words) {
@@ -157,29 +157,63 @@ export class PdfParserService {
         } else if (x >= columns.description[0] && x < columns.description[1]) {
           row.description += ' ' + text;
         } else if (x >= columns.debit[0] && x < columns.debit[1]) {
-          row.debit += text;
+          // Only add if it looks like a number (digits, dots, commas, spaces)
+          if (/^[\d.,\s]+$/.test(text)) {
+            row.debit += text;
+          }
         } else if (x >= columns.credit[0] && x < columns.credit[1]) {
-          row.credit += text;
+          // Only add if it looks like a number
+          if (/^[\d.,\s]+$/.test(text)) {
+            row.credit += text;
+          }
         } else if (x >= columns.balance[0] && x < columns.balance[1]) {
-          row.balance += text;
+          // Only add if it looks like a number
+          if (/^[\d.,\s]+$/.test(text)) {
+            row.balance += text;
+          }
         }
       }
 
-      // Row filtering
+      // Row filtering - must have valid date
       if (!dateCandidates.some((d) => this.dateRegex.test(d))) {
         continue;
       }
 
-      // Skip non-transaction rows
+      // Extract and validate date format (must be exactly XX.XX)
+      const dateText = dateCandidates.length > 0 ? dateCandidates[0] : '';
+      let extractedDate = '';
+      if (dateText.includes(' ')) {
+        const dates = dateText.trim().split(/\s+/);
+        extractedDate = dates.length > 1 ? dates[1] : dates[0];
+      } else {
+        extractedDate = dateText;
+      }
+
+      // Date must be exactly in format XX.XX (not "DE", "PRODUTO", etc.)
+      if (!/^\d{2}\.\d{2}$/.test(extractedDate)) {
+        continue;
+      }
+
+      // Skip non-transaction rows with header/info keywords
       const descLower = row.description.toLowerCase();
+      const debitLower = row.debit.toLowerCase();
+      const creditLower = row.credit.toLowerCase();
+      const allText = (descLower + ' ' + debitLower + ' ' + creditLower).toLowerCase();
+
       if (
         descLower.includes('saldo inicial') ||
         descLower.includes('capital social') ||
         descLower.includes('matric') ||
         descLower.includes('data lanc') ||
         descLower.includes('descritivo') ||
-        descLower.includes('debito') ||
-        descLower.includes('credito')
+        allText.includes('debito') ||
+        allText.includes('credito') ||
+        allText.includes('produto') ||
+        allText.includes('montante') ||
+        allText.includes('moeda') ||
+        allText.includes('vencimento') ||
+        creditLower.includes('data') ||
+        debitLower.includes('montante')
       ) {
         continue;
       }
@@ -189,17 +223,31 @@ export class PdfParserService {
         continue;
       }
 
-      // Use second date if present, otherwise first
-      row.date = dateCandidates.length > 1 ? dateCandidates[1] : dateCandidates[0];
-      // Dates come as "11.03 11.03" - extract the second date (valor)
-      const dateText = dateCandidates.length > 0 ? dateCandidates[0] : '';
-      if (dateText.includes(' ')) {
-        // Extract second date from "11.03 11.03"
-        const dates = dateText.trim().split(/\s+/);
-        row.date = dates.length > 1 ? dates[1] : dates[0];
-      } else {
-        row.date = dateText;
+      // Validate that balance contains only numeric characters
+      const balanceClean = row.balance.replace(/[\s,]/g, '');
+      if (!/^\d+\.?\d*$/.test(balanceClean)) {
+        continue;
       }
+
+      // If debit has value, validate it's numeric
+      if (row.debit.trim()) {
+        const debitClean = row.debit.replace(/[\s,]/g, '');
+        if (!/^\d+\.?\d*$/.test(debitClean)) {
+          continue;
+        }
+      }
+
+      // If credit has value, validate it's numeric
+      if (row.credit.trim()) {
+        const creditClean = row.credit.replace(/[\s,]/g, '');
+        if (!/^\d+\.?\d*$/.test(creditClean)) {
+          continue;
+        }
+      }
+
+      // Set the validated date
+      row.date = extractedDate;
+
       // Trim all values
       transactions.push({
         date: row.date.trim(),
