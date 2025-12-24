@@ -1,0 +1,96 @@
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import * as Papa from 'papaparse';
+
+interface CsvData {
+  headers: string[];
+  rows: string[][];
+}
+
+@Component({
+  selector: 'app-csv-view',
+  imports: [CommonModule, FormsModule],
+  templateUrl: './csv-view.component.html',
+  styleUrl: './csv-view.component.scss',
+})
+export class CsvViewComponent {
+  csvData = signal<CsvData | null>(null);
+  filterText = signal<string>('');
+  isDragging = signal<boolean>(false);
+
+  get filteredRows(): string[][] {
+    const data = this.csvData();
+    const filter = this.filterText().toLowerCase().trim();
+
+    if (!data || !filter) {
+      return data?.rows || [];
+    }
+
+    return data.rows.filter((row) => row.some((cell) => cell.toLowerCase().includes(filter)));
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleFile(files[0]);
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.handleFile(input.files[0]);
+    }
+  }
+
+  private handleFile(file: File): void {
+    if (!file.name.endsWith('.csv')) {
+      alert('Please upload a CSV file');
+      return;
+    }
+
+    Papa.parse(file, {
+      complete: (results) => {
+        if (results.data && results.data.length > 0) {
+          const headers = results.data[0] as string[];
+          const rows = results.data.slice(1) as string[][];
+
+          // Filter out empty rows
+          const filteredRows = rows.filter((row) => row.some((cell) => cell && cell.trim() !== ''));
+
+          this.csvData.set({
+            headers,
+            rows: filteredRows,
+          });
+          this.filterText.set('');
+        }
+      },
+      error: (error) => {
+        console.error('Error parsing CSV:', error);
+        alert('Error parsing CSV file');
+      },
+    });
+  }
+
+  clearData(): void {
+    this.csvData.set(null);
+    this.filterText.set('');
+  }
+}

@@ -1,0 +1,93 @@
+<div class="csv-view-container">
+  @if (!csvData()) {
+    <!-- Upload Area -->
+    <div
+      class="upload-zone"
+      [class.dragging]="isDragging()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+    >
+      <div class="upload-content">
+        <svg
+          class="upload-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+          />
+        </svg>
+        <h2>Upload CSV File</h2>
+        <p>Drag and drop your CSV file here, or click to browse</p>
+        <input
+          type="file"
+          accept=".csv"
+          (change)="onFileSelected($event)"
+          id="fileInput"
+          hidden
+        />
+        <button type="button" class="browse-button" onclick="document.getElementById('fileInput').click()">
+          Browse Files
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Data View -->
+    <div class="data-view">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <input
+          type="text"
+          class="filter-input"
+          placeholder="Filter data across all columns..."
+          [(ngModel)]="filterText"
+          (ngModelChange)="filterText.set($event)"
+        />
+        <button type="button" class="clear-button" (click)="clearData()">
+          Clear Data
+        </button>
+      </div>
+
+      <!-- Table Container -->
+      <div class="table-container">
+        <table class="csv-table">
+          <thead>
+            <tr>
+              @for (header of csvData()!.headers; track $index) {
+                <th>{{ header }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of filteredRows; track $index) {
+              <tr>
+                @for (cell of row; track $index) {
+                  <td>{{ cell }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if (filteredRows.length === 0) {
+          <div class="no-results">
+            <p>No matching results found</p>
+          </div>
+        }
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <span>Total rows: {{ csvData()!.rows.length }}</span>
+        <span>Filtered rows: {{ filteredRows.length }}</span>
+        <span>Columns: {{ csvData()!.headers.length }}</span>
+      </div>
+    </div>
+  }
+</div>
