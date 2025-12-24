@@ -110,7 +110,7 @@ export class PdfParserService {
     return collectedWords;
   }
 
-  private groupRows(words: Word[], tolerance: number = 2): Map<number, Word[]> {
+  private groupRows(words: Word[], tolerance: number = 4): Map<number, Word[]> {
     const rows = new Map<number, Word[]>();
 
     for (const word of words) {
