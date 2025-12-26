@@ -3,12 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as Papa from 'papaparse';
 import { CsvDataService } from '../../services/csv-data.service';
-import { Transaction } from '../../services/pdf-parser/pdf-parser.service';
-
-interface CsvData {
-  headers: string[];
-  rows: string[][];
-}
+import { Transaction } from '../../shared/models/transaction.model';
+import { CsvData } from '../../shared/models/csv.model';
 
 @Component({
   selector: 'app-csv-view',

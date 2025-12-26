@@ -1,18 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Transaction } from '../../services/pdf-parser/pdf-parser.service';
+import { Transaction } from '../../shared/models/transaction.model';
+import { CsvRow } from '../../shared/models/csv.model';
+import { ConversionFormat, FillColumnRequest } from '../../shared/models/common.model';
 import CashewService from '../../services/csv-to-csv/cashew.service';
 import { CsvImportComponent } from './components/csv-import/csv-import.component';
-import {
-  FormatSelectorComponent,
-  ConversionFormat,
-} from './components/format-selector/format-selector.component';
+import { FormatSelectorComponent } from './components/format-selector/format-selector.component';
 import { ConvertedDataViewComponent } from './components/converted-data-view/converted-data-view.component';
-import { FillColumnRequest } from './components/fill-column-modal/fill-column-modal.component';
-
-interface CsvRow {
-  [key: string]: any;
-}
 
 @Component({
   selector: 'app-csv-to-csv',
@@ -105,10 +99,11 @@ export class CsvToCsvComponent {
 
     for (const row of data) {
       const values = headers.map((h) => {
-        const val = row[h] || '';
-        return val.includes(',') || val.includes('"') || val.includes('\n')
-          ? `"${val.replace(/"/g, '""')}"`
-          : val;
+        const val = row[h];
+        const strVal = val !== null && val !== undefined ? String(val) : '';
+        return strVal.includes(',') || strVal.includes('"') || strVal.includes('\n')
+          ? `"${strVal.replace(/"/g, '""')}"`
+          : strVal;
       });
       csvRows.push(values.join(','));
     }

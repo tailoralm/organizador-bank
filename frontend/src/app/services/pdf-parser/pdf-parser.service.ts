@@ -1,33 +1,9 @@
 import { Injectable } from '@angular/core';
 import * as pdfjsLib from 'pdfjs-dist';
+import { Transaction, Word, ColumnConfig } from '../../shared/models/transaction.model';
 
 // Configure PDF.js worker - using local worker file
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-
-export interface Transaction {
-  date: string;
-  description: string;
-  value: string;
-  balance: string;
-}
-
-export interface Word {
-  text: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  page: number;
-}
-
-export interface ColumnConfig {
-  date1: [number, number];
-  date2: [number, number];
-  description: [number, number];
-  debit: [number, number];
-  credit: [number, number];
-  balance: [number, number];
-}
 
 export abstract class PdfParserService {
   protected abstract headerKeywords: string[];

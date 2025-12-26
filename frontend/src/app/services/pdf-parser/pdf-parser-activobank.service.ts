@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ColumnConfig, PdfParserService, Transaction, Word } from './pdf-parser.service';
+import { PdfParserService } from './pdf-parser.service';
+import { Transaction, Word, ColumnConfig } from '../../shared/models/transaction.model';
 
 @Injectable({
   providedIn: 'root',

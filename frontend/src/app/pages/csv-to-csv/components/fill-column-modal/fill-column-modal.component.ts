@@ -2,11 +2,7 @@ import { Component, input, output, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalComponent } from '../../../../shared/components/modal/modal.component';
-
-export interface FillColumnRequest {
-  column: string;
-  value: string;
-}
+import { FillColumnRequest } from '../../../../shared/models/common.model';
 
 @Component({
   selector: 'app-fill-column-modal',

@@ -1,14 +1,7 @@
 import { Component, input, output, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FillColumnModalComponent,
-  FillColumnRequest,
-} from '../fill-column-modal/fill-column-modal.component';
-
-export interface ConversionFormat {
-  value: string;
-  label: string;
-}
+import { ConversionFormat, FillColumnRequest } from '../../../../shared/models/common.model';
+import { FillColumnModalComponent } from '../fill-column-modal/fill-column-modal.component';
 
 @Component({
   selector: 'app-format-selector',

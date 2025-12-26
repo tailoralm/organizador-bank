@@ -1,7 +1,8 @@
 import { Component, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as Papa from 'papaparse';
-import { Transaction } from '../../../../services/pdf-parser/pdf-parser.service';
+import { Transaction } from '../../../../shared/models/transaction.model';
+import { FileInfo } from '../../../../shared/models/common.model';
 
 @Component({
   selector: 'app-csv-import',
@@ -13,7 +14,7 @@ export class CsvImportComponent {
   dataLoaded = output<Transaction[]>();
 
   isDragging = signal<boolean>(false);
-  fileInfo = signal<{ name: string; rows: number } | null>(null);
+  fileInfo = signal<FileInfo | null>(null);
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();

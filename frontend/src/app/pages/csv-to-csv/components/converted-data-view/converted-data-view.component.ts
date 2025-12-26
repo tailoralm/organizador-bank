@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EditableTableComponent } from '../../../../shared/components/editable-table/editable-table.component';
+import { CsvRow } from '../../../../shared/models/csv.model';
 
 @Component({
   selector: 'app-converted-data-view',
@@ -9,12 +10,12 @@ import { EditableTableComponent } from '../../../../shared/components/editable-t
   styleUrl: './converted-data-view.component.scss',
 })
 export class ConvertedDataViewComponent {
-  data = input.required<any[]>();
-  dataChange = output<any[]>();
+  data = input.required<CsvRow[]>();
+  dataChange = output<CsvRow[]>();
   clear = output<void>();
   download = output<void>();
 
-  onDataChange(updatedData: any[]): void {
+  onDataChange(updatedData: CsvRow[]): void {
     this.dataChange.emit(updatedData);
   }
 }

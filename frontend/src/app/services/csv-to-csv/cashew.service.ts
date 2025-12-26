@@ -1,4 +1,5 @@
-import { Transaction } from '../pdf-parser/pdf-parser.service';
+import { Transaction } from '../../shared/models/transaction.model';
+import { CashewTransaction } from '../../shared/models/csv.model';
 
 export default class CashewService {
   fromTransactions(data: Transaction[]): CashewTransaction[] {
@@ -44,13 +45,4 @@ export default class CashewService {
 
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
   }
-}
-
-interface CashewTransaction {
-  Date: string; // in format DD/MM/YYYY HH:MM:SS
-  Amount: string; // in format 1234.56 (positive for income, negative for expense)
-  Category: string;
-  Title: string;
-  Note: string;
-  Account: string;
 }

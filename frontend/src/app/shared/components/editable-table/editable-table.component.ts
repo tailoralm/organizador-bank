@@ -1,5 +1,6 @@
 import { Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CsvRow } from '../../models/csv.model';
 
 @Component({
   selector: 'app-editable-table',
@@ -8,8 +9,8 @@ import { CommonModule } from '@angular/common';
   styleUrl: './editable-table.component.scss',
 })
 export class EditableTableComponent {
-  data = input.required<any[]>();
-  dataChange = output<any[]>();
+  data = input.required<CsvRow[]>();
+  dataChange = output<CsvRow[]>();
 
   private editingCell = signal<{ row: number; col: string } | null>(null);
   private editValue = signal<string>('');
@@ -38,7 +39,8 @@ export class EditableTableComponent {
   private startEdit(rowIndex: number, column: string): void {
     const d = this.data();
     this.editingCell.set({ row: rowIndex, col: column });
-    this.editValue.set(d[rowIndex][column] || '');
+    const cellValue = d[rowIndex][column];
+    this.editValue.set(cellValue !== null && cellValue !== undefined ? String(cellValue) : '');
 
     setTimeout(() => {
       const input = document.querySelector('.cell-input') as HTMLInputElement;

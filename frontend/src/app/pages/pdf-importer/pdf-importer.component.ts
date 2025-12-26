@@ -3,11 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CsvDataService } from '../../services/csv-data.service';
 import PdfParserActivobankService from '../../services/pdf-parser/pdf-parser-activobank.service';
-
-interface BankPattern {
-  id: string;
-  name: string;
-}
+import { BankPattern } from '../../shared/models/common.model';
 
 @Component({
   selector: 'app-pdf-importer',
@@ -24,7 +20,12 @@ export class PdfImporterComponent {
   fileName = signal<string>('');
 
   bankPatterns: BankPattern[] = [
-    { id: 'activobank', name: 'ActivoBank (Portugal)' },
+    {
+      id: 'activobank',
+      name: 'ActivoBank (Portugal)',
+      value: 'activobank',
+      label: 'ActivoBank (Portugal)',
+    },
     // Future patterns will be added here
   ];
 
