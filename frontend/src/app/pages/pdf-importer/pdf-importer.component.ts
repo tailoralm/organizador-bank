@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { PdfParserService } from '../../services/pdf-parser/pdf-parser.service';
 import { CsvDataService } from '../../services/csv-data.service';
+import PdfParserActivobankService from '../../services/pdf-parser/pdf-parser-activobank.service';
 
 interface BankPattern {
   id: string;
@@ -29,7 +29,7 @@ export class PdfImporterComponent {
   ];
 
   constructor(
-    private pdfParserService: PdfParserService,
+    private pdfParserService: PdfParserActivobankService,
     private csvDataService: CsvDataService,
     private router: Router
   ) {}

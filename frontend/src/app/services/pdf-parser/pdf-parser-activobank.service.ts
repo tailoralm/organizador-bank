@@ -1,6 +1,22 @@
-import { ColumnConfig, Transaction, Word } from './pdf-parser.service';
+import { Injectable } from '@angular/core';
+import { ColumnConfig, PdfParserService, Transaction, Word } from './pdf-parser.service';
 
-export default class PdfParserActivobankService {
+@Injectable({
+  providedIn: 'root',
+})
+export default class PdfParserActivobankService extends PdfParserService {
+  protected headerKeywords = ['lanc.', 'valor', 'descritivo', 'debito', 'credito', 'saldo'];
+  protected marginToIgnore = 50;
+
+  protected readonly headerRegex =
+    /data\s+lanc\.?\s+data\s+valor.*descritivo.*debito.*credito.*saldo/i;
+  protected readonly footerRegex = /\bsaldo final\b/i;
+  protected readonly dateRegex = /\d{2}\.\d{2}/;
+
+  constructor() {
+    super();
+  }
+
   extractDataFromRow(rowWords: Word[], columns: ColumnConfig): Transaction {
     const row: Transaction = {
       date: '',
@@ -14,9 +30,9 @@ export default class PdfParserActivobankService {
       const x = word.x;
       const text = word.text;
 
-      if (x >= columns.date1[0] && x < columns.date2[1]) {
-        // Dates come together like "11.03 11.03", extract the second one (valor date)
-        row.date += text;
+      if (x >= columns.date1[0] && x < columns.date1[1]) {
+        // get only Date Lanc.
+        row.date += this.splitDate(text);
       } else if (x >= columns.date2[1] && x < columns.description[1]) {
         row.description += ' ' + text;
       } else if (x >= columns.debit[0] && x < columns.debit[1]) {
@@ -38,8 +54,14 @@ export default class PdfParserActivobankService {
     return row;
   }
 
-  headerKeywords(): string[] {
-    return ['lanc.', 'valor', 'descritivo', 'debito', 'credito', 'saldo'];
+  private splitDate(text: string): string {
+    const parts = text.split(' ');
+    const date = parts.length > 1 ? parts[0] : text;
+    const splitDate = date.split('.');
+    if (splitDate.length === 2) {
+      return `${splitDate[1]}/${splitDate[0]}`;
+    }
+    return date;
   }
 
   columnsConfig(words: Word[]): ColumnConfig {
@@ -73,8 +95,8 @@ export default class PdfParserActivobankService {
     return columns;
   }
 
-  marginToIgnore(): number {
-    return 50; // Ignore words within 50 units of the page edges
+  isEndOfPage(row: Transaction): boolean {
+    return row.description.includes('A TRANSPORTAR');
   }
 
   private isNumber(text: string): boolean {

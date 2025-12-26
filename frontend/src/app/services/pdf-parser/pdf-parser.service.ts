@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import * as pdfjsLib from 'pdfjs-dist';
-import PdfParserActivobankService from './pdf-parser-activobank.service';
 
 // Configure PDF.js worker - using local worker file
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
@@ -31,16 +30,16 @@ export interface ColumnConfig {
   balance: [number, number];
 }
 
-@Injectable({
-  providedIn: 'root',
-})
-export class PdfParserService {
-  private readonly headerRegex =
-    /data\s+lanc\.?\s+data\s+valor.*descritivo.*debito.*credito.*saldo/i;
-  private readonly footerRegex = /\bsaldo final\b/i;
-  private readonly dateRegex = /\d{2}\.\d{2}/;
+export abstract class PdfParserService {
+  protected abstract headerKeywords: string[];
+  protected abstract marginToIgnore: number;
+  protected abstract readonly headerRegex: RegExp;
+  protected abstract readonly footerRegex: RegExp;
+  protected abstract readonly dateRegex: RegExp;
 
-  private readonly satatementExtractor = new PdfParserActivobankService();
+  abstract columnsConfig(words: Word[]): ColumnConfig;
+  abstract extractDataFromRow(rowWords: Word[], columns: ColumnConfig): Transaction;
+  abstract isEndOfPage(row: Transaction): boolean;
 
   async parsePdf(file: File, pattern: string): Promise<Transaction[]> {
     const arrayBuffer = await file.arrayBuffer();
@@ -63,8 +62,6 @@ export class PdfParserService {
       // Check for header and footer
       const pageText = textContent.items.map((item: any) => item.str).join(' ');
 
-      console.log(`Page ${pageNum} text: ${pageText}`);
-
       if (!collecting && this.headerRegex.test(pageText)) {
         collecting = true;
       }
@@ -83,11 +80,6 @@ export class PdfParserService {
               page: pageNum,
             };
             collectedWords.push(word);
-
-            // Log first 50 words to help debug column positions
-            if (word.text === 'JUROS' || word.text === 'legislação' || word.text === '10.30') {
-              console.log(`Word: "${word.text}" at X=${word.x.toFixed(2)}, Y=${word.y.toFixed(2)}`);
-            }
           }
         }
       }
@@ -106,11 +98,10 @@ export class PdfParserService {
 
   private groupRows(words: Word[], tolerance = 4): Map<number, Word[]> {
     const rows = new Map<number, Word[]>();
-    const marginToIgnore = this.satatementExtractor.marginToIgnore();
     const pageOffset = 1000; // Large offset to separate pages
 
     for (const word of words) {
-      if (word.x < marginToIgnore) continue;
+      if (word.x < this.marginToIgnore) continue;
 
       word.y += (word.page - 1) * pageOffset;
       let foundKey: number | null = null;
@@ -133,8 +124,6 @@ export class PdfParserService {
   }
 
   private parseTransactions(words: Word[], pattern: string): Transaction[] {
-    const headerKeywords = this.satatementExtractor.headerKeywords();
-
     let columns: ColumnConfig | null = null;
 
     const rows = this.groupRows(words);
@@ -148,46 +137,28 @@ export class PdfParserService {
       if (!columns) {
         const rowText = rowWords.map((w) => w.text.toLowerCase()).join(' ');
         let countKeys = 0;
-        for (const keyword of headerKeywords) {
+        for (const keyword of this.headerKeywords) {
           if (rowText.includes(keyword)) {
             countKeys++;
           }
         }
-        if (countKeys === headerKeywords.length) {
-          columns = this.satatementExtractor.columnsConfig(rowWords);
+        if (countKeys === this.headerKeywords.length) {
+          columns = this.columnsConfig(rowWords);
           continue;
         } else {
           continue;
         }
       }
 
-      const row = this.satatementExtractor.extractDataFromRow(rowWords, columns);
+      const row = this.extractDataFromRow(rowWords, columns);
 
-      if (row.description.includes('A TRANSPORTAR')) {
+      if (this.isEndOfPage(row)) {
         // End of transactions in this page
         columns = null;
         continue;
       }
 
-      const dateCandidates: string[] = row.date?.split(' ') || [];
-
-      // Row filtering - must have valid date
-      if (!dateCandidates.some((d) => this.dateRegex.test(d))) {
-        continue;
-      }
-
-      // Extract and validate date format (must be exactly XX.XX)
-      const dateText = dateCandidates.length > 0 ? dateCandidates[0] : '';
-      let extractedDate = '';
-      if (dateText.includes(' ')) {
-        const dates = dateText.trim().split(/\s+/);
-        extractedDate = dates.length > 1 ? dates[1] : dates[0];
-      } else {
-        extractedDate = dateText;
-      }
-
-      // Date must be exactly in format XX.XX (not "DE", "PRODUTO", etc.)
-      if (!/^\d{2}\.\d{2}$/.test(extractedDate)) {
+      if (!row.date) {
         continue;
       }
 
@@ -222,9 +193,6 @@ export class PdfParserService {
       if ((!row.debit.trim() && !row.credit.trim()) || (row.debit.trim() && row.credit.trim())) {
         continue;
       }
-
-      // Set the validated date
-      row.date = extractedDate;
 
       // Trim all values
       transactions.push({
