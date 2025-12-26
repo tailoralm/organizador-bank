@@ -7,8 +7,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 export interface Transaction {
   date: string;
   description: string;
-  debit: string;
-  credit: string;
+  value: string;
   balance: string;
 }
 
@@ -173,33 +172,19 @@ export abstract class PdfParserService {
         continue;
       }
 
-      // If debit has value, validate it's numeric
-      if (row.debit.trim()) {
-        const debitClean = row.debit.replace(/[\s,]/g, '');
-        if (!/^\d+\.?\d*$/.test(debitClean)) {
+      // If value has value, validate it's numeric, it can be negative
+      if (row.value.trim()) {
+        const valueClean = row.value.replace(/[\s,]/g, '');
+        if (!/^-?\d+\.?\d*$/.test(valueClean)) {
           continue;
         }
-      }
-
-      // If credit has value, validate it's numeric
-      if (row.credit.trim()) {
-        const creditClean = row.credit.replace(/[\s,]/g, '');
-        if (!/^\d+\.?\d*$/.test(creditClean)) {
-          continue;
-        }
-      }
-
-      // Skip rows that dont have debit or credit (both empty) or both filled
-      if ((!row.debit.trim() && !row.credit.trim()) || (row.debit.trim() && row.credit.trim())) {
-        continue;
       }
 
       // Trim all values
       transactions.push({
         date: row.date.trim(),
         description: row.description.trim(),
-        debit: row.debit.trim(),
-        credit: row.credit.trim(),
+        value: row.value.trim(),
         balance: row.balance.trim(),
       });
     }

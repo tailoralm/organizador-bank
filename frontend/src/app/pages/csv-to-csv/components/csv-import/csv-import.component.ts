@@ -54,8 +54,7 @@ export class CsvImportComponent {
         const transactions: Transaction[] = results.data.map((row: any) => ({
           date: row.date || row.Date || '',
           description: row.description || row.Description || '',
-          debit: row.debit || row.Debit || '',
-          credit: row.credit || row.Credit || '',
+          value: row.value || row.Value || '',
           balance: row.balance || row.Balance || '',
         }));
         this.fileInfo.set({ name: file.name, rows: transactions.length });

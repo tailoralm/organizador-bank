@@ -21,10 +21,12 @@ export default class PdfParserActivobankService extends PdfParserService {
     const row: Transaction = {
       date: '',
       description: '',
-      debit: '',
-      credit: '',
+      value: '',
       balance: '',
     };
+
+    let debit = '';
+    let credit = '';
 
     for (const word of rowWords) {
       const x = word.x;
@@ -37,12 +39,12 @@ export default class PdfParserActivobankService extends PdfParserService {
         row.description += ' ' + text;
       } else if (x >= columns.debit[0] && x < columns.debit[1]) {
         if (this.isNumber(text)) {
-          row.debit += text;
+          debit += text;
         }
       } else if (x >= columns.debit[1] && x < columns.credit[1]) {
         // After and of debit, before end of credit
         if (this.isNumber(text)) {
-          row.credit += text;
+          credit += text;
         }
       } else if (x >= columns.credit[1] && x < columns.balance[1]) {
         // After end of credit, before end of balance
@@ -51,6 +53,8 @@ export default class PdfParserActivobankService extends PdfParserService {
         }
       }
     }
+    if (credit) row.value = credit;
+    else if (debit) row.value = '-' + debit;
     return row;
   }
 

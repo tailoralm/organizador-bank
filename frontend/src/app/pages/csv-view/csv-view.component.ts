@@ -34,14 +34,8 @@ export class CsvViewComponent implements OnInit {
     const transactions = this.csvDataService.getTransactions();
     if (transactions.length === 0) return;
 
-    const headers = ['date', 'description', 'debit', 'credit', 'balance'];
-    const rows = transactions.map((t: Transaction) => [
-      t.date,
-      t.description,
-      t.debit,
-      t.credit,
-      t.balance,
-    ]);
+    const headers = Object.keys(transactions[0]);
+    const rows: string[][] = transactions.map((t) => Object.values(t) as string[]);
 
     this.csvData.set({ headers, rows });
   }

@@ -35,13 +35,7 @@ export class CsvDataService {
 
     // Add data rows
     for (const row of data) {
-      const values = [
-        row.date,
-        `"${row.description.replace(/"/g, '""')}"`, // Escape quotes in description
-        row.debit,
-        row.credit,
-        row.balance,
-      ];
+      const values = Object.values(row);
       csvRows.push(values.join(','));
     }
 

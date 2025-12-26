@@ -8,15 +8,15 @@ export default class CashewService {
       const date = this.formatDate(transaction.date);
 
       // Calculate amount: credit is income (positive), debit is expense (negative)
-      const amount = this.calculateAmount(transaction.credit, transaction.debit);
+      // const amount = this.calculateAmount(transaction.credit, transaction.debit);
 
       return {
         Date: date,
-        Amount: amount,
-        Category: '', // Empty - user will fill manually
+        Amount: transaction.value,
+        Category: '',
         Title: transaction.description,
-        Note: '', // Empty - user will fill manually
-        Account: '', // Empty - user will fill manually
+        Note: '',
+        Account: '',
       };
     });
   }
@@ -35,7 +35,6 @@ export default class CashewService {
       // Set time to 00:00:00 if not present
       return this.dateToString(date);
     } catch (error) {
-      // Return current date/time if parsing fails
       return this.dateToString(new Date());
     }
   }
@@ -49,28 +48,6 @@ export default class CashewService {
     const seconds = String(date.getSeconds()).padStart(2, '0');
 
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-  }
-
-  private calculateAmount(credit: string, debit: string): string {
-    const creditValue = this.parseAmount(credit);
-    const debitValue = this.parseAmount(debit);
-
-    // Credit is income (positive), debit is expense (negative)
-    const amount = creditValue - debitValue;
-
-    return amount.toFixed(2);
-  }
-
-  private parseAmount(amountStr: string): number {
-    if (!amountStr || amountStr.trim() === '') {
-      return 0;
-    }
-
-    // Remove any currency symbols, spaces, and convert comma to dot
-    const cleaned = amountStr.replace(/[^\d.,-]/g, '').replace(',', '.');
-    const value = parseFloat(cleaned);
-
-    return isNaN(value) ? 0 : value;
   }
 }
 
