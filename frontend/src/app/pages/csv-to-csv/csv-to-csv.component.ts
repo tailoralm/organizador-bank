@@ -1,9 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Transaction } from '../../shared/models/transaction.model';
 import { CsvRow } from '../../shared/models/csv.model';
 import { ConversionFormat, FillColumnRequest } from '../../shared/models/common.model';
 import CashewService from '../../services/csv-to-csv/cashew.service';
+import { CsvDataService } from '../../services/csv-data.service';
 import { CsvImportComponent } from './components/csv-import/csv-import.component';
 import { FormatSelectorComponent } from './components/format-selector/format-selector.component';
 import { ConvertedDataViewComponent } from './components/converted-data-view/converted-data-view.component';
@@ -14,7 +15,7 @@ import { ConvertedDataViewComponent } from './components/converted-data-view/con
   templateUrl: './csv-to-csv.component.html',
   styleUrl: './csv-to-csv.component.scss',
 })
-export class CsvToCsvComponent {
+export class CsvToCsvComponent implements OnInit {
   sourceData = signal<Transaction[] | null>(null);
   convertedData = signal<CsvRow[] | null>(null);
   selectedFormat = signal<string>('');
@@ -22,6 +23,16 @@ export class CsvToCsvComponent {
   private cashewService = new CashewService();
 
   formats: ConversionFormat[] = [{ value: 'cashew', label: 'Cashew' }];
+
+  constructor(private csvDataService: CsvDataService) {}
+
+  ngOnInit(): void {
+    // Check if there's data from CSV View or PDF Importer
+    if (this.csvDataService.hasTransactions()) {
+      const transactions = this.csvDataService.getTransactions();
+      this.onDataLoaded(transactions);
+    }
+  }
 
   onDataLoaded(data: Transaction[]): void {
     this.sourceData.set(data);

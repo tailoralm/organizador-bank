@@ -1,6 +1,7 @@
 import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import * as Papa from 'papaparse';
 import { CsvDataService } from '../../services/csv-data.service';
 import { Transaction } from '../../shared/models/transaction.model';
@@ -17,7 +18,7 @@ export class CsvViewComponent implements OnInit {
   filterText = signal<string>('');
   isDragging = signal<boolean>(false);
 
-  constructor(private csvDataService: CsvDataService) {}
+  constructor(private csvDataService: CsvDataService, private router: Router) {}
 
   ngOnInit(): void {
     // Check if there's data from the PDF importer
@@ -114,5 +115,28 @@ export class CsvViewComponent implements OnInit {
 
   downloadCsv(): void {
     this.csvDataService.downloadCsv();
+  }
+
+  navigateToCsvToCsv(): void {
+    const data = this.csvData();
+    if (!data) return;
+
+    // Convert CSV data to Transaction[] format for CSV to CSV page
+    const transactions: Transaction[] = data.rows.map((row) => {
+      const transaction: Transaction = {
+        date: '',
+        description: '',
+        value: '',
+        balance: '',
+      };
+      data.headers.forEach((header, index) => {
+        transaction[header] = row[index];
+      });
+      return transaction;
+    });
+
+    // Store in service and navigate
+    this.csvDataService.setTransactions(transactions);
+    this.router.navigate(['/csv-to-csv']);
   }
 }

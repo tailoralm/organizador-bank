@@ -1,4 +1,4 @@
-import { Component, input, output, signal, ViewChild } from '@angular/core';
+import { Component, input, output, signal, ViewChild, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConversionFormat, FillColumnRequest } from '../../../../shared/models/common.model';
 import { FillColumnModalComponent } from '../fill-column-modal/fill-column-modal.component';
@@ -9,7 +9,7 @@ import { FillColumnModalComponent } from '../fill-column-modal/fill-column-modal
   templateUrl: './format-selector.component.html',
   styleUrl: './format-selector.component.scss',
 })
-export class FormatSelectorComponent {
+export class FormatSelectorComponent implements OnInit {
   @ViewChild(FillColumnModalComponent) fillModal!: FillColumnModalComponent;
 
   formats = input.required<ConversionFormat[]>();
@@ -18,6 +18,14 @@ export class FormatSelectorComponent {
   fillColumnRequested = output<FillColumnRequest>();
 
   selectedFormat = signal<string>('');
+
+  ngOnInit(): void {
+    // Set default format to first value (cashew)
+    const formats = this.formats();
+    if (formats && formats.length > 0) {
+      this.onFormatChange(formats[0].value);
+    }
+  }
 
   onFormatChange(value: string): void {
     this.selectedFormat.set(value);

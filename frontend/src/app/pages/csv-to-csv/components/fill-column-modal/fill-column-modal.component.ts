@@ -20,7 +20,9 @@ export class FillColumnModalComponent {
   fillValue = signal<string>('');
 
   open(): void {
-    this.selectedColumn.set('');
+    const cols = this.columns();
+    // Set first column as default
+    this.selectedColumn.set(cols && cols.length > 0 ? cols[0] : '');
     this.fillValue.set('');
     this.modal.open();
   }

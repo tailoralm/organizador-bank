@@ -9,7 +9,6 @@
         [value]="selectedColumn()"
         (change)="onColumnChange($any($event.target).value)"
       >
-        <option value="">Select a column...</option>
         @for (column of columns(); track column) {
           <option [value]="column">{{ column }}</option>
         }

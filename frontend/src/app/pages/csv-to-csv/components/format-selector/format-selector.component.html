@@ -7,7 +7,6 @@
         [value]="selectedFormat()"
         (change)="onFormatChange($any($event.target).value)"
       >
-        <option value="">Select format...</option>
         @for (format of formats(); track format.value) {
           <option [value]="format.value">{{ format.label }}</option>
         }

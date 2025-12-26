@@ -6,6 +6,7 @@ export interface Transaction {
   description: string;
   value: string;
   balance: string;
+  [key: string]: string | number | boolean; // Allow dynamic properties for flexible CSV data
 }
 
 /**
