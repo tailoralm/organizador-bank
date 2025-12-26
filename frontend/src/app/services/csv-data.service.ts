@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Transaction } from './pdf-parser.service';
+import { Transaction } from './pdf-parser/pdf-parser.service';
 
 @Injectable({
   providedIn: 'root',

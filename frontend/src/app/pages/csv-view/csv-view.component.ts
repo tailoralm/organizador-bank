@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import * as Papa from 'papaparse';
 import { CsvDataService } from '../../services/csv-data.service';
-import { Transaction } from '../../services/pdf-parser.service';
+import { Transaction } from '../../services/pdf-parser/pdf-parser.service';
 
 interface CsvData {
   headers: string[];

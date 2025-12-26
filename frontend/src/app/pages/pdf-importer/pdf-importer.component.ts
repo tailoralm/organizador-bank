@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { PdfParserService } from '../../services/pdf-parser.service';
+import { PdfParserService } from '../../services/pdf-parser/pdf-parser.service';
 import { CsvDataService } from '../../services/csv-data.service';
 
 interface BankPattern {
