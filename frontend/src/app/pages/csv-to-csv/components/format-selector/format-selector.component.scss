@@ -5,33 +5,70 @@
   border-radius: 8px;
   border: 1px solid var(--color-border);
 
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--color-text-primary);
+  .format-selector-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
   }
 
-  select {
-    width: 100%;
-    max-width: 300px;
-    padding: 0.75rem;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    font-size: 1rem;
-    background-color: var(--color-bg-tertiary);
-    color: var(--color-text-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
+  .dropdown-container {
+    flex: 1;
 
-    &:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--color-text-primary);
     }
 
-    &:hover {
-      border-color: var(--color-primary);
+    select {
+      width: 100%;
+      max-width: 300px;
+      padding: 0.75rem;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      font-size: 1rem;
+      background-color: var(--color-bg-tertiary);
+      color: var(--color-text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+
+      &:hover {
+        border-color: var(--color-primary);
+      }
+    }
+  }
+
+  .btn-fill-all {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-primary);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-primary-hover);
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 }

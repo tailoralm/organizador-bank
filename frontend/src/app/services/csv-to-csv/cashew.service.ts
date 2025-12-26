@@ -3,12 +3,7 @@ import { Transaction } from '../pdf-parser/pdf-parser.service';
 export default class CashewService {
   fromTransactions(data: Transaction[]): CashewTransaction[] {
     return data.map((transaction) => {
-      // Parse date and convert to DD/MM/YYYY HH:MM:SS format
-      // Assuming input date is in a parseable format
       const date = this.formatDate(transaction.date);
-
-      // Calculate amount: credit is income (positive), debit is expense (negative)
-      // const amount = this.calculateAmount(transaction.credit, transaction.debit);
 
       return {
         Date: date,

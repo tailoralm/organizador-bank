@@ -6,7 +6,9 @@
   @if (sourceData()) {
     <app-format-selector
       [formats]="formats"
+      [columns]="getColumns()"
       (formatSelected)="onFormatSelected($event)"
+      (fillColumnRequested)="onFillColumnRequested($event)"
     />
   }
 

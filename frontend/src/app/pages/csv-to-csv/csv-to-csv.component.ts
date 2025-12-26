@@ -8,6 +8,7 @@ import {
   ConversionFormat,
 } from './components/format-selector/format-selector.component';
 import { ConvertedDataViewComponent } from './components/converted-data-view/converted-data-view.component';
+import { FillColumnRequest } from './components/fill-column-modal/fill-column-modal.component';
 
 interface CsvRow {
   [key: string]: any;
@@ -43,6 +44,40 @@ export class CsvToCsvComponent {
   }
 
   onDataChange(updatedData: CsvRow[]): void {
+    this.convertedData.set(updatedData);
+  }
+
+  getColumns(): string[] {
+    const data = this.convertedData();
+    if (!data || data.length === 0) return [];
+    return Object.keys(data[0]);
+  }
+
+  onFillColumnRequested(request: FillColumnRequest): void {
+    const data = this.convertedData();
+    if (!data || data.length === 0) return;
+
+    const { column, value } = request;
+
+    // Check if any cell in this column has a value
+    const hasValues = data.some((row) => {
+      const cellValue = row[column];
+      return cellValue !== undefined && cellValue !== null && cellValue !== '';
+    });
+
+    if (hasValues) {
+      const confirmed = confirm(
+        `Some cells in column "${column}" already contain values. Do you want to replace them?`
+      );
+      if (!confirmed) return;
+    }
+
+    // Fill all cells in the column with the value
+    const updatedData = data.map((row) => ({
+      ...row,
+      [column]: value,
+    }));
+
     this.convertedData.set(updatedData);
   }
 

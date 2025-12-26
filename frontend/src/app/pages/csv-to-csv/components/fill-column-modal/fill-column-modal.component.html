@@ -1,0 +1,35 @@
+<app-modal>
+  <div class="fill-column-form">
+    <h2>Fill Column</h2>
+
+    <div class="form-group">
+      <label for="column-select">Select Column:</label>
+      <select
+        id="column-select"
+        [value]="selectedColumn()"
+        (change)="onColumnChange($any($event.target).value)"
+      >
+        <option value="">Select a column...</option>
+        @for (column of columns(); track column) {
+          <option [value]="column">{{ column }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="fill-value">Value:</label>
+      <input
+        id="fill-value"
+        type="text"
+        [value]="fillValue()"
+        (input)="onValueChange($any($event.target).value)"
+        placeholder="Enter value to fill"
+      />
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-secondary" (click)="close()">Cancel</button>
+      <button class="btn btn-primary" (click)="onSubmit()">Apply</button>
+    </div>
+  </div>
+</app-modal>

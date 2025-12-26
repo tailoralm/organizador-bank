@@ -67,3 +67,19 @@ body {
   background-color: var(--color-primary);
   color: white;
 }
+
+/* Button Styles */
+button {
+  font-family: inherit;
+}
+
+/* Input & Select Styles */
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Native Alert Dialog Styling (Limited Support) */
+/* Note: Native confirm/alert dialogs have limited styling options */
+/* For better customization, consider using a custom confirmation modal */
