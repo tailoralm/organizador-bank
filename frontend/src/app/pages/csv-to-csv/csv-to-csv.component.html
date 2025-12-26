@@ -1,0 +1,27 @@
+<div class="csv-converter-container">
+  <h1>CSV to CSV Converter</h1>
+
+  <app-csv-import (dataLoaded)="onDataLoaded($event)" />
+
+  @if (sourceData()) {
+    <app-format-selector
+      [formats]="formats"
+      (formatSelected)="onFormatSelected($event)"
+    />
+  }
+
+  @if (convertedData() && convertedData()!.length > 0) {
+    <app-converted-data-view
+      [data]="convertedData()!"
+      (dataChange)="onDataChange($event)"
+      (clear)="clearData()"
+      (download)="downloadCsv()"
+    />
+  }
+
+  @if (sourceData() && !convertedData()) {
+    <div class="info-message">
+      <p>Please select a format to convert the data.</p>
+    </div>
+  }
+</div>

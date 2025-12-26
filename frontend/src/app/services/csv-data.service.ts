@@ -30,7 +30,7 @@ export class CsvDataService {
     }
 
     // Create CSV header
-    const headers = ['date', 'description', 'debit', 'credit', 'balance'];
+    const headers = data[0] ? Object.keys(data[0]) : [];
     const csvRows = [headers.join(',')];
 
     // Add data rows

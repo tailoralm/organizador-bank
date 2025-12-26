@@ -1,0 +1,13 @@
+<div class="format-section">
+  <label for="format-select">Convert to format:</label>
+  <select
+    id="format-select"
+    [value]="selectedFormat()"
+    (change)="onFormatChange($any($event.target).value)"
+  >
+    <option value="">Select format...</option>
+    @for (format of formats(); track format.value) {
+      <option [value]="format.value">{{ format.label }}</option>
+    }
+  </select>
+</div>

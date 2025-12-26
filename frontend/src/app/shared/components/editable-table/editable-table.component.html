@@ -1,0 +1,44 @@
+<div class="table-container">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        @for (header of getHeaders(); track header) {
+          <th>{{ header }}</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of data(); track $index; let rowIdx = $index) {
+        <tr>
+          <td class="row-number">{{ rowIdx + 1 }}</td>
+          @for (header of getHeaders(); track header) {
+            <td
+              class="editable-cell"
+              [class.editing]="isEditing(rowIdx, header)"
+              [class.empty]="!row[header]"
+              (click)="onCellClick(rowIdx, header, $event)"
+            >
+              @if (isEditing(rowIdx, header)) {
+                <input
+                  type="text"
+                  class="cell-input"
+                  [value]="getEditValue()"
+                  (input)="onInputChange($any($event.target).value)"
+                  (blur)="saveEdit($event)"
+                  (keydown.enter)="saveEdit($event); $event.preventDefault()"
+                  (keydown.escape)="cancelEdit($event); $event.preventDefault()"
+                  (click)="$event.stopPropagation()"
+                />
+              } @else {
+                <span class="cell-value">
+                  {{ row[header] || '(empty - click to edit)' }}
+                </span>
+              }
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

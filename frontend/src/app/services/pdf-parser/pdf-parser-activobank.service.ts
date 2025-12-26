@@ -59,7 +59,8 @@ export default class PdfParserActivobankService extends PdfParserService {
     const date = parts.length > 1 ? parts[0] : text;
     const splitDate = date.split('.');
     if (splitDate.length === 2) {
-      return `${splitDate[1]}/${splitDate[0]}`;
+      const nowYear = new Date().getFullYear();
+      return `${splitDate[1]}/${splitDate[0]}/${nowYear}`;
     }
     return date;
   }
